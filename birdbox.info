@@ -1,0 +1,4 @@
+name = Birdbox
+description = "Allows Twitter users to tweet directly from within your Drupal website."
+core = 6.x
+version = 6.x-1.0-dev
