@@ -4,3 +4,45 @@
  * @file
  * Allows Twitter users to tweet directly from within your Drupal website.
  */
+
+/**
+ * Implementation of hook_block_info().
+ */
+function birdbox_block_info() {
+  $blocks = array();
+  $blocks['tweet'] = array(
+    'info' => t('Birdbox'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  return $blocks;
+}
+
+/**
+ * Implementation of hook_block_view().
+ */
+function birdbox_block_view($delta = '') {
+  $block = array();
+  if ($delta == 'tweet') {
+    $block['subject'] = t('Birdbox');
+    $block['content'] = drupal_get_form('birdbox_tweet_form');
+  }
+  return $block;
+}
+
+/**
+ * Form for tweeting.
+ */
+function birdbox_tweet_form($form_state) {
+  $form = array();
+  $form['tweet_text'] = array(
+    '#type' => 'textarea',
+    '#title' => t('What’s happening?'),
+    '#rows' => 1,
+    '#required' => TRUE,
+  );
+  $form['tweet_submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Tweet'),
+  );
+  return $form;
+}
