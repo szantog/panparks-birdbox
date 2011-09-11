@@ -63,12 +63,18 @@ function birdbox_tweet_form($form_state) {
   return $form;
 }
 
-
 /**
  * Submit handler for the tweet form.
  */
 function birdbox_tweet_form_submit($form, &$form_state) {
+  // Store the tweet and the session id in the database.
   $sid = session_api_get_sid();
+  $birdbox_record = array(
+    'sid' => $sid, 
+    'tweet' => $form_state['values']['tweet_text'],
+  );
+  drupal_write_record('birdbox', $birdbox_record);
+  
   // Now go for the authorization.
   birdbox_tweet_authorize($sid);
 }
