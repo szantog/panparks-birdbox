@@ -65,6 +65,8 @@ function birdbox_tweet_form($form_state) {
 
 /**
  * Submit handler for the tweet form.
+ * @TODO: Handle the situation when the user has already authorized our application
+ *        and just want to tweet again. 
  */
 function birdbox_tweet_form_submit($form, &$form_state) {
   // Store the tweet and the session id in the database.
