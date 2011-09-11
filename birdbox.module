@@ -18,6 +18,12 @@ function birdbox_menu() {
     'access arguments' => array('administer site configuration'),
     'file' => 'birdbox.admin.inc',
   );
+  $items['birdbox/oauth'] = array(
+    'title' => 'Birdbox OAuth',
+    'page callback' => 'birdbox_oauth',
+    'access callback' => TRUE, 
+    'type' => MENU_CALLBACK,
+  );
   return $items;
 }
 
@@ -91,8 +97,9 @@ function birdbox_tweet_form_submit($form, &$form_state) {
     'sid' => $sid, 
     'tweet' => $form_state['values']['tweet_text'],
   );
-  drupal_write_record('birdbox', $birdbox_record);
+  //drupal_write_record('birdbox', $birdbox_record);
   
+  $_SESSION['birdbox_oauth']['tweet'] = $form_state['values']['tweet_text'];
   // Now go for the authorization.
   birdbox_tweet_authorize($sid);
 }
@@ -107,9 +114,58 @@ function birdbox_tweet_authorize($sid) {
   $twitter = new TwitterOAuth(variable_get('birdbox_consumer_key'), variable_get('birdbox_consumer_secret'));
   $token = $twitter->get_request_token();
 
-  $_SESSION['twitter_oauth']['sid'] = $sid;  
-  $_SESSION['twitter_oauth']['token'] = $token;
-  $_SESSION['twitter_oauth']['destination'] = $_GET['q'];
+  $_SESSION['birdbox_oauth']['sid'] = $sid;  
+  $_SESSION['birdbox_oauth']['token'] = $token;
   drupal_goto($twitter->get_authorize_url($token));
+}
+
+/**
+ * Handle the OAuth callback from Twitter.
+ */
+function birdbox_oauth() {
+  if (!isset($_SESSION['birdbox_oauth']) || !is_array($_SESSION['birdbox_oauth']['token']) 
+      || !isset($_GET['oauth_token'])) {
+    watchdog('birdbox', 'Invalid Twitter OAuth request.', 'WATCHDOG_ERROR');
+    return t('An error occured');
+  }
+  if ($_SESSION['birdbox_oauth']['token']['oauth_token'] != $_GET['oauth_token']) {
+    watchdog('birdbox', 'Invalid Twitter OAuth token.', 'WATCHDOG_ERROR');
+    return t('An error occured');
+  }
+
+  module_load_include('lib.php', 'oauth_common');
+  module_load_include('lib.php', 'twitter');
+
+  $token = $_SESSION['birdbox_oauth']['token'];
+  $twitter = new TwitterOAuth(
+    variable_get('birdbox_consumer_key'),
+    variable_get('birdbox_consumer_secret'),
+    $token['oauth_token'], 
+    $token['oauth_token_secret']
+  );
+  if ($twitter) {
+    
+    if ($response = $twitter->get_access_token()) {
+      $twitter_auth = new TwitterOAuth(
+        variable_get('birdbox_consumer_key'),
+        variable_get('birdbox_consumer_secret'),
+        $response['oauth_token'], 
+        $response['oauth_token_secret']
+      );
+      $twitter_account = $twitter_auth->users_show($response['screen_name']);
+      $twitter_account->set_auth($response);
+      $twitter_auth->status_update($_SESSION['birdbox_oauth']['tweet']);
+
+      return t('Tweet successfully posted.');
+    }
+    else {
+      watchdog('birdbox', 'Invalid Twitter OAuth request.', 'WATCHDOG_ERROR');
+      return t('An error occured');
+    }
+  }
+  else {
+    watchdog('birdbox', 'Invalid Twitter OAuth request.', 'WATCHDOG_ERROR');
+    return t('An error occured');
+  }
 }
 
