@@ -6,6 +6,22 @@
  */
 
 /**
+ * Implementation of hook_menu().
+ */
+function birdbox_menu() {
+  $items = array();
+  $items['admin/config/services/birdbox'] = array(
+    'title' => 'Birdbox',
+    'description' => 'Settings for posting tweets with Birdbox.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('birdbox_admin_form'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'birdbox.admin.inc',
+  );
+  return $items;
+}
+
+/**
  * Implementation of hook_block_info().
  */
 function birdbox_block_info() {
@@ -35,13 +51,13 @@ function birdbox_block_view($delta = '') {
 function birdbox_tweet_form($form_state) {
   
   // If we don't have a configured Twitter consumer key and secret, we won't show the form.
-  $key = variable_get('twitter_consumer_key', '');
-  $secret = variable_get('twitter_consumer_secret', '');
+  $key = variable_get('birdbox_consumer_key', '');
+  $secret = variable_get('birdbox_consumer_secret', '');
   if ($key == '' || $secret == '') {
     drupal_set_message(
       t('Please <a href="@configure-url">configure</a> your Twitter consumer key and secret.', 
         array(
-          '!configure-url' => url('admin/config/services/twitter'),
+          '!configure-url' => url('admin/config/services/birdbox'),
         )
       ), 
       'error');
@@ -88,7 +104,7 @@ function birdbox_tweet_authorize($sid) {
   module_load_include('lib.php', 'oauth_common');
   module_load_include('lib.php', 'twitter');
 
-  $twitter = new TwitterOAuth(variable_get('twitter_consumer_key'), variable_get('twitter_consumer_secret'));
+  $twitter = new TwitterOAuth(variable_get('birdbox_consumer_key'), variable_get('birdbox_consumer_secret'));
   $token = $twitter->get_request_token();
 
   $_SESSION['twitter_oauth']['sid'] = $sid;  
