@@ -20,7 +20,7 @@ function birdbox_menu() {
   );
   $items['birdbox/oauth'] = array(
     'title' => 'Birdbox OAuth',
-    'page callback' => 'birdbox_oauth',
+    'page callback' => 'birdbox_oauth_page',
     'access callback' => TRUE, 
     'type' => MENU_CALLBACK,
   );
@@ -122,15 +122,10 @@ function birdbox_tweet_authorize($sid) {
 /**
  * Handle the OAuth callback from Twitter.
  */
-function birdbox_oauth() {
-  if (!isset($_SESSION['birdbox_oauth']) || !is_array($_SESSION['birdbox_oauth']['token']) 
-      || !isset($_GET['oauth_token'])) {
-    watchdog('birdbox', 'Invalid Twitter OAuth request.', 'WATCHDOG_ERROR');
-    return t('An error occured');
-  }
-  if ($_SESSION['birdbox_oauth']['token']['oauth_token'] != $_GET['oauth_token']) {
-    watchdog('birdbox', 'Invalid Twitter OAuth token.', 'WATCHDOG_ERROR');
-    return t('An error occured');
+function birdbox_oauth_page() {
+  
+  if (!birdbox_oauth_validate()) {
+    return 'An error occured.';
   }
 
   module_load_include('lib.php', 'oauth_common');
@@ -167,5 +162,21 @@ function birdbox_oauth() {
     watchdog('birdbox', 'Invalid Twitter OAuth request.', 'WATCHDOG_ERROR');
     return t('An error occured');
   }
+}
+
+/**
+ * Validate the OAuth request on the OAuth callback page.
+ */
+function birdbox_oauth_validate() {  
+  if (!isset($_SESSION['birdbox_oauth']) || !is_array($_SESSION['birdbox_oauth']['token']) 
+      || !isset($_GET['oauth_token'])) {
+    watchdog('birdbox', 'Invalid Twitter OAuth request.', 'WATCHDOG_ERROR');
+    return FALSE; 
+  }
+  if ($_SESSION['birdbox_oauth']['token']['oauth_token'] != $_GET['oauth_token']) {
+    watchdog('birdbox', 'Invalid Twitter OAuth token.', 'WATCHDOG_ERROR');
+    return FALSE;
+  }
+  return TRUE;
 }
 
