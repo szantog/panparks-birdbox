@@ -44,6 +44,11 @@ function birdbox_admin_form($form_state) {
     '#rows' => 1,
     '#required' => TRUE,
   );
+  $form['tweet_form_settings']['birdbox_show_tweet_form_after_success'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show tweet form after successfull tweeting.'),
+    '#default_value' => variable_get('birdbox_show_tweet_form_after_success', TRUE),
+  );
 
   $form['oauth_settings'] = array(
     '#type' => 'fieldset',
