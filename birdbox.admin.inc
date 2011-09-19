@@ -31,5 +31,16 @@ function birdbox_admin_form($form_state) {
     '#required' => TRUE,
   );
 
+  $form['birdbox_redirect_path'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Redirect path'),
+    '#default_value' => variable_get('birdbox_redirect_path', ''), 
+    '#size' => 40,
+    '#description' => t('Specify a relative URL to redirect after make an attempt to tweet.'),
+    '#field_prefix' => url(NULL, array('absolute' => TRUE)) . (variable_get('clean_url', 0) ? '' : '?q='),
+    '#required' => TRUE,
+  );
+
   return system_settings_form($form);
 }
+
