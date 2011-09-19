@@ -72,6 +72,7 @@ function birdbox_tweet_form($form_state) {
   
   // Consumer key and secret are okay, let's see that form!
   $form = array();
+
   // If we are after an attemption, and something went wrong, show an error message.
   if (isset($_GET['birdbox_status']) && $_GET['birdbox_status'] == 'fail') {
     $form['error_message'] = array(
@@ -82,6 +83,26 @@ function birdbox_tweet_form($form_state) {
       '#suffix' => '</div>',
     );
   }
+
+  // If we are after a successfull tweeting, show the success message.
+  if (isset($_GET['birdbox_status']) && $_GET['birdbox_status'] == 'success') {
+    $success_message = variable_get('birdbox_success_message');
+    $message = (is_array($success_message) && isset($success_message['value'])) ?
+      $success_message['value'] : t('Thank you!');
+    $format = (is_array($success_message) && !empty($success_message['format'])) ?
+      $success_message['format'] : filter_default_format();
+    $form['success_message'] = array(
+      '#type' => 'markup',
+      '#prefix' => '<div id="birdbox-success-message">',
+      '#markup' => check_markup($message, $format), 
+      '#suffix' => '</div>',
+    );
+    // If we don't have to show the tweet form after a successfull tweeting, return now.
+    if (!variable_get('birdbox_show_tweet_form_after_success', TRUE)) {
+      return $form;
+    }
+  }
+
   $form['tweet_text'] = array(
     '#type' => 'textarea',
     '#default_value' => variable_get('birdbox_default_text_to_tweet', ''),
