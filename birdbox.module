@@ -109,7 +109,7 @@ function birdbox_tweet_form_submit($form, &$form_state) {
  */
 function birdbox_tweet_authorize($sid) {
   module_load_include('lib.php', 'oauth_common');
-  module_load_include('lib.php', 'twitter');
+  module_load_include('lib.php', 'birdbox', 'lib/twitter');
 
   $twitter = new TwitterOAuth(variable_get('birdbox_consumer_key'), variable_get('birdbox_consumer_secret'));
   $token = $twitter->get_request_token();
@@ -129,7 +129,7 @@ function birdbox_oauth_page() {
   }
 
   module_load_include('lib.php', 'oauth_common');
-  module_load_include('lib.php', 'twitter');
+  module_load_include('lib.php', 'birdbox', 'lib/twitter');
 
   $token = $_SESSION['birdbox_oauth']['token'];
   $twitter = new TwitterOAuth(

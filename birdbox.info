@@ -2,7 +2,6 @@ name = Birdbox
 description = "Allows Twitter users to tweet directly from within your Drupal website."
 core = 7.x
 version = 7.x-1.0-dev
-dependencies[] = twitter
 dependencies[] = oauth_common
 dependencies[] = session_api
 
