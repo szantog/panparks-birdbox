@@ -74,9 +74,12 @@ function birdbox_tweet_form($form_state) {
   $form = array();
   $form['tweet_text'] = array(
     '#type' => 'textarea',
-    '#title' => t('What\'s happening?'),
+    //'#title' => t('What\'s happening?'),
     '#rows' => 1,
+    '#resizable' => FALSE,
     '#required' => TRUE,
+    '#maxlength' => 140,
+    '#maxlength_js' => TRUE,
   );
   $form['tweet_submit'] = array(
     '#type' => 'submit',
@@ -125,7 +128,7 @@ function birdbox_tweet_authorize($sid) {
 function birdbox_oauth_page() {
   
   if (!birdbox_oauth_validate()) {
-    return 'An error occured.';
+    drupal_goto(variable_get('birdbox_redirect_path', 'node'), array('query' => array('birdbox_status' => 'fail')));
   }
 
   module_load_include('lib.php', 'oauth_common');
@@ -138,8 +141,8 @@ function birdbox_oauth_page() {
     $token['oauth_token'], 
     $token['oauth_token_secret']
   );
+  
   if ($twitter) {
-    
     if ($response = $twitter->get_access_token()) {
       $twitter_auth = new TwitterOAuth(
         variable_get('birdbox_consumer_key'),
@@ -149,16 +152,16 @@ function birdbox_oauth_page() {
       );
       $twitter_auth->status_update($_SESSION['birdbox_oauth']['tweet']);
 
-      return t('Tweet successfully posted.');
+      drupal_goto(variable_get('birdbox_redirect_path', 'node'), array('query' => array('birdbox_status' => 'success')));
     }
     else {
       watchdog('birdbox', 'Invalid Twitter OAuth request.', 'WATCHDOG_ERROR');
-      return t('An error occured');
+      drupal_goto(variable_get('birdbox_redirect_path', 'node'), array('query' => array('birdbox_status' => 'fail')));
     }
   }
   else {
     watchdog('birdbox', 'Invalid Twitter OAuth request.', 'WATCHDOG_ERROR');
-    return t('An error occured');
+    drupal_goto(variable_get('birdbox_redirect_path', 'node'), array('query' => array('birdbox_status' => 'fail')));
   }
 }
 
