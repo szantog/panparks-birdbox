@@ -128,7 +128,8 @@ function birdbox_tweet_authorize($sid) {
 function birdbox_oauth_page() {
   
   if (!birdbox_oauth_validate()) {
-    drupal_goto(variable_get('birdbox_redirect_path', 'node'), array('query' => array('birdbox_status' => 'fail')));
+    drupal_goto(variable_get('birdbox_redirect_path', 'node'), 
+      array('query' => array('birdbox_status' => 'fail'), 'fragment' => 'block-birdbox-tweet'));
   }
 
   module_load_include('lib.php', 'oauth_common');
@@ -143,7 +144,8 @@ function birdbox_oauth_page() {
   );
   
   if ($twitter) {
-    if ($response = $twitter->get_access_token()) {
+    $response = $twitter->get_access_token();
+    if (is_array($response) && isset($response['oauth_token']) && isset($response['oauth_token_secret'])) {
       $twitter_auth = new TwitterOAuth(
         variable_get('birdbox_consumer_key'),
         variable_get('birdbox_consumer_secret'),
@@ -152,16 +154,19 @@ function birdbox_oauth_page() {
       );
       $twitter_auth->status_update($_SESSION['birdbox_oauth']['tweet']);
 
-      drupal_goto(variable_get('birdbox_redirect_path', 'node'), array('query' => array('birdbox_status' => 'success')));
+      drupal_goto(variable_get('birdbox_redirect_path', 'node'), 
+        array('query' => array('birdbox_status' => 'success'), 'fragment' => 'block-birdbox-tweet'));
     }
     else {
       watchdog('birdbox', 'Invalid Twitter OAuth request.', 'WATCHDOG_ERROR');
-      drupal_goto(variable_get('birdbox_redirect_path', 'node'), array('query' => array('birdbox_status' => 'fail')));
+      drupal_goto(variable_get('birdbox_redirect_path', 'node'), 
+        array('query' => array('birdbox_status' => 'fail'), 'fragment' => 'block-birdbox-tweet'));
     }
   }
   else {
     watchdog('birdbox', 'Invalid Twitter OAuth request.', 'WATCHDOG_ERROR');
-    drupal_goto(variable_get('birdbox_redirect_path', 'node'), array('query' => array('birdbox_status' => 'fail')));
+    drupal_goto(variable_get('birdbox_redirect_path', 'node'), 
+      array('query' => array('birdbox_status' => 'fail'), 'fragment' => 'block-birdbox-tweet'));
   }
 }
 
