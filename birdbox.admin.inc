@@ -40,6 +40,16 @@ function birdbox_admin_form($form_state) {
     '#field_prefix' => url(NULL, array('absolute' => TRUE)) . (variable_get('clean_url', 0) ? '' : '?q='),
     '#required' => TRUE,
   );
+  $form['birdbox_default_text_to_tweet'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Default text to tweet'),
+    '#default_value' => variable_get('birdbox_default_text_to_tweet', ''),
+    '#rows' => 1,
+    '#resizable' => FALSE,
+    '#required' => TRUE,
+    '#maxlength' => 140,
+    '#maxlength_js' => TRUE,
+  );
 
   return system_settings_form($form);
 }
