@@ -147,8 +147,6 @@ function birdbox_oauth_page() {
         $response['oauth_token'], 
         $response['oauth_token_secret']
       );
-      $twitter_account = $twitter_auth->users_show($response['screen_name']);
-      $twitter_account->set_auth($response);
       $twitter_auth->status_update($_SESSION['birdbox_oauth']['tweet']);
 
       return t('Tweet successfully posted.');
