@@ -72,6 +72,16 @@ function birdbox_tweet_form($form_state) {
   
   // Consumer key and secret are okay, let's see that form!
   $form = array();
+  // If we are after an attemption, and something went wrong, show an error message.
+  if (isset($_GET['birdbox_status']) && $_GET['birdbox_status'] == 'fail') {
+    $form['error_message'] = array(
+      '#type' => 'markup',
+      '#prefix' => '<div class="messages error">',
+      '#markup' => check_plain(
+        variable_get('birdbox_error_message', t('Oops, something went wrong. Please try again.'))),
+      '#suffix' => '</div>',
+    );
+  }
   $form['tweet_text'] = array(
     '#type' => 'textarea',
     '#default_value' => variable_get('birdbox_default_text_to_tweet', ''),
