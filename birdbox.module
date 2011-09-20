@@ -177,7 +177,7 @@ function birdbox_oauth_page() {
   if ($twitter) {
     $response = $twitter->get_access_token();
     if (is_array($response) && isset($response['oauth_token']) && isset($response['oauth_token_secret'])) {
-      birdbox_post_tweet($response['oauth_token'], $response['oauth_token_secret'], $_SESSION['birdbox_oauth']['tweet']);
+      birdbox_post_tweet($_SESSION['birdbox_oauth']['tweet'], $response['oauth_token'], $response['oauth_token_secret']);
 
       $_SESSION['birdbox_oauth']['access_tokens']['oauth_token'] = $response['oauth_token'];
       $_SESSION['birdbox_oauth']['access_tokens']['oauth_token_secret'] = $response['oauth_token_secret'];
