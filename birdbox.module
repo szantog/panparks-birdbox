@@ -84,7 +84,7 @@ function birdbox_tweet_form($form_state) {
     );
   }
 
-  // If we are after a successfull tweeting, show the success message.
+  // If we are after a successful tweeting, show the success message.
   if (isset($_GET['birdbox_status']) && $_GET['birdbox_status'] == 'success') {
     $success_message = variable_get('birdbox_success_message');
     $message = (is_array($success_message) && isset($success_message['value'])) ?
@@ -97,7 +97,7 @@ function birdbox_tweet_form($form_state) {
       '#markup' => check_markup($message, $format), 
       '#suffix' => '</div>',
     );
-    // If we don't have to show the tweet form after a successfull tweeting, return now.
+    // If we don't have to show the tweet form after a successful tweeting, return now.
     if (!variable_get('birdbox_show_tweet_form_after_success', TRUE)) {
       return $form;
     }
