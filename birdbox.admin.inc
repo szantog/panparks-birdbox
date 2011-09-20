@@ -16,7 +16,7 @@ function birdbox_admin_form($form_state) {
     '#type' => 'textarea',
     '#title' => t('Default text to tweet'),
     '#default_value' => variable_get('birdbox_default_text_to_tweet', ''),
-    '#rows' => 1,
+    '#rows' => 2,
     '#resizable' => FALSE,
     '#required' => TRUE,
     '#maxlength' => 140,
@@ -27,7 +27,7 @@ function birdbox_admin_form($form_state) {
     '#title' => t('Error message'),
     '#description' => t('This message will appear when tweeting was unsuccessfull.'),
     '#default_value' => variable_get('birdbox_error_message', t('Oops, something went wrong. Please try again.')),
-    '#rows' => 1,
+    '#rows' => 2,
     '#required' => TRUE,
   );
   $success_message = variable_get('birdbox_success_message');
@@ -41,7 +41,7 @@ function birdbox_admin_form($form_state) {
       $success_message['format'] : filter_default_format(),
     '#process' => array('filter_process_format'),
     '#theme_wrappers' => array('text_format_wrapper'),
-    '#rows' => 1,
+    '#rows' => 2,
     '#required' => TRUE,
   );
   $form['tweet_form_settings']['birdbox_show_tweet_form_after_success'] = array(

@@ -106,7 +106,7 @@ function birdbox_tweet_form($form_state) {
   $form['tweet_text'] = array(
     '#type' => 'textarea',
     '#default_value' => variable_get('birdbox_default_text_to_tweet', ''),
-    '#rows' => 1,
+    '#rows' => 2,
     '#resizable' => FALSE,
     '#required' => TRUE,
     '#maxlength' => 140,
