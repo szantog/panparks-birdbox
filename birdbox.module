@@ -121,8 +121,6 @@ function birdbox_tweet_form($form_state) {
 
 /**
  * Submit handler for the tweet form.
- * @TODO: Handle the situation when the user has already authorized our application
- *        and just want to tweet again. 
  */
 function birdbox_tweet_form_submit($form, &$form_state) {
   // Store the tweet and the session id in the database.
@@ -132,9 +130,20 @@ function birdbox_tweet_form_submit($form, &$form_state) {
     'tweet' => $form_state['values']['tweet_text'],
   );
   
-  $_SESSION['birdbox_oauth']['tweet'] = $form_state['values']['tweet_text'];
-  // Now go for the authorization.
-  birdbox_tweet_authorize($sid);
+  // Check wether the user already authorized our app.
+  if (isset($_SESSION['birdbox_oauth']['access_tokens'])) {
+    // In this case we do not have to authorize us again, we can tweet right now.
+    module_load_include('lib.php', 'oauth_common');
+    module_load_include('lib.php', 'birdbox', 'lib/twitter');
+    birdbox_post_tweet($form_state['values']['tweet_text']);
+    $form_state['redirect'] = array(variable_get('birdbox_redirect_path', 'node'), 
+      array('query' => array('birdbox_status' => 'success'), 'fragment' => 'block-birdbox-tweet'));
+  }
+  else {
+    $_SESSION['birdbox_oauth']['tweet'] = $form_state['values']['tweet_text'];
+    // Go for the authorization.
+    birdbox_tweet_authorize($sid);
+  }
 }
 
 /**
@@ -178,6 +187,9 @@ function birdbox_oauth_page() {
     if (is_array($response) && isset($response['oauth_token']) && isset($response['oauth_token_secret'])) {
       birdbox_post_tweet($response['oauth_token'], $response['oauth_token_secret'], $_SESSION['birdbox_oauth']['tweet']);
 
+      $_SESSION['birdbox_oauth']['access_tokens']['oauth_token'] = $response['oauth_token'];
+      $_SESSION['birdbox_oauth']['access_tokens']['oauth_token_secret'] = $response['oauth_token_secret'];
+
       drupal_goto(variable_get('birdbox_redirect_path', 'node'), 
         array('query' => array('birdbox_status' => 'success'), 'fragment' => 'block-birdbox-tweet'));
     }
@@ -213,7 +225,13 @@ function birdbox_oauth_validate() {
 /**
  * Post a tweet to Twitter on a user's behalf.
  */
-function birdbox_post_tweet($oauth_token, $oauth_token_secret, $tweet_text) {
+function birdbox_post_tweet($tweet_text, $oauth_token = NULL, $oauth_token_secret = NULL) {
+  if (!$oauth_token && !$oauth_token_secret) {
+    // The access tokens are stored in the current session.
+    $oauth_token = $_SESSION['birdbox_oauth']['access_tokens']['oauth_token'];
+    $oauth_token_secret = $_SESSION['birdbox_oauth']['access_tokens']['oauth_token_secret'];
+  }
+  
   $twitter_auth = new TwitterOAuth(
     variable_get('birdbox_consumer_key'),
     variable_get('birdbox_consumer_secret'),
