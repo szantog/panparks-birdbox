@@ -123,13 +123,6 @@ function birdbox_tweet_form($form_state) {
  * Submit handler for the tweet form.
  */
 function birdbox_tweet_form_submit($form, &$form_state) {
-  // Store the tweet and the session id in the database.
-  $sid = session_api_get_sid();
-  $birdbox_record = array(
-    'sid' => $sid, 
-    'tweet' => $form_state['values']['tweet_text'],
-  );
-  
   // Check wether the user already authorized our app.
   if (isset($_SESSION['birdbox_oauth']['access_tokens'])) {
     // In this case we do not have to authorize us again, we can tweet right now.
@@ -149,14 +142,13 @@ function birdbox_tweet_form_submit($form, &$form_state) {
 /**
  * Authorization request for Twitter.
  */
-function birdbox_tweet_authorize($sid) {
+function birdbox_tweet_authorize() {
   module_load_include('lib.php', 'oauth_common');
   module_load_include('lib.php', 'birdbox', 'lib/twitter');
 
   $twitter = new TwitterOAuth(variable_get('birdbox_consumer_key'), variable_get('birdbox_consumer_secret'));
   $token = $twitter->get_request_token();
 
-  $_SESSION['birdbox_oauth']['sid'] = $sid;  
   $_SESSION['birdbox_oauth']['token'] = $token;
   drupal_goto($twitter->get_authorize_url($token));
 }
