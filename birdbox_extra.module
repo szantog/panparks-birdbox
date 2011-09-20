@@ -5,3 +5,45 @@
  * Additional features for Birdbox.
  */
 
+/**
+ * Implementation of hook_form_FORM_ID_alter().
+ * -- Add new fields to the administration form.
+ */
+function birdbox_extra_form_birdbox_admin_form_alter(&$form, &$form_state, $form_id) {
+  $form['birdbox_extra'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Birdbox Extra'),
+    '#description' => t('Extra features for Birdbox.'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#weight' => 50,
+  );
+  $form['birdbox_extra']['birdbox_extra_required_string'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Required string'),
+    '#default_value' => variable_get('birdbox_extra_required_string'),
+    '#description' => t('Specifiy a string (e.g. a hashtag) which has to be included in tweets. The validation will be case-insensitive.'),
+  );
+}
+
+/**
+ * Implementation of hook_form_FORM_ID_alter().
+ * -- Add a new validate handler to tweet form.
+ */
+function birdbox_extra_form_birdbox_tweet_form_alter(&$form, $form_state, $form_id) {
+  $form['#validate'][] = 'birdbox_extra_validate_required_string';
+}
+
+/**
+ * Validate wether the tweet contains the required string.
+ */
+function birdbox_extra_validate_required_string($form, &$form_state) {
+  dd('hej');
+  $required = variable_get('birdbox_extra_required_string');
+  if (!empty($required) && stripos($form_state['values']['tweet_text'], $required) === FALSE) {
+    form_set_error('tweet_text', 
+      t('Please include "%string" in your tweet (without the quotation marks).', 
+        array('%string' => variable_get('birdbox_extra_required_string'))));
+  }
+}
+
