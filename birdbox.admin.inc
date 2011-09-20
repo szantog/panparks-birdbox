@@ -22,6 +22,13 @@ function birdbox_admin_form($form_state) {
     '#maxlength' => 140,
     '#maxlength_js' => TRUE,
   );
+  $form['tweet_form_settings']['birdbox_tweet_description'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Description'),
+    '#description' => t('This text will be shown above the tweet form.'),
+    '#default_value' => variable_get('birdbox_tweet_description'),
+    '#rows' => 2,
+  );
   $form['tweet_form_settings']['birdbox_error_message'] = array(
     '#type' => 'textarea',
     '#title' => t('Error message'),
