@@ -38,7 +38,6 @@ function birdbox_extra_form_birdbox_tweet_form_alter(&$form, $form_state, $form_
  * Validate wether the tweet contains the required string.
  */
 function birdbox_extra_validate_required_string($form, &$form_state) {
-  dd('hej');
   $required = variable_get('birdbox_extra_required_string');
   if (!empty($required) && stripos($form_state['values']['tweet_text'], $required) === FALSE) {
     form_set_error('tweet_text', 
@@ -46,4 +45,3 @@ function birdbox_extra_validate_required_string($form, &$form_state) {
         array('%string' => variable_get('birdbox_extra_required_string'))));
   }
 }
-
