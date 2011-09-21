@@ -1,12 +1,17 @@
 <?php
 
 /**
+ * @file
+ * Install/uninstall functions for Birdbox Extra.
+ */
+
+/**
  * Implementation of hook_uninstall().
  */
 function birdbox_extra_uninstall() {
-	// Delete variables.
-	db_delete('variable')
-		->condition('name', 'birdbox_extra_%', 'LIKE')
-		->execute();
-	cache_clear_all('variables', 'cache');
+  // Delete variables.
+  db_delete('variable')
+    ->condition('name', 'birdbox_extra_%', 'LIKE')
+    ->execute();
+  cache_clear_all('variables', 'cache');
 }
