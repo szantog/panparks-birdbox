@@ -18,7 +18,6 @@ function birdbox_admin_form($form_state) {
     '#default_value' => variable_get('birdbox_default_text_to_tweet', ''),
     '#rows' => 2,
     '#resizable' => FALSE,
-    '#required' => TRUE,
     '#maxlength' => 140,
     '#maxlength_js' => TRUE,
   );
