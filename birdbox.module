@@ -21,7 +21,7 @@ function birdbox_menu() {
   $items['birdbox/oauth'] = array(
     'title' => 'Birdbox OAuth',
     'page callback' => 'birdbox_oauth_page',
-    'access callback' => TRUE, 
+    'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
   return $items;
@@ -46,7 +46,12 @@ function birdbox_block_view($delta = '') {
   $block = array();
   if ($delta == 'tweet') {
     $block['subject'] = t('Birdbox');
-    $block['content'] = drupal_get_form('birdbox_tweet_form');
+    $block['content']['tweet_description'] = array(
+      '#prefix' => '<div id="birdbox-description">',
+      '#markup' => check_plain(variable_get('birdbox_tweet_description')),
+      '#suffix' => '</div>',
+    );
+    $block['content']['tweer_form'] = drupal_get_form('birdbox_tweet_form');
   }
   return $block;
 }
@@ -55,21 +60,21 @@ function birdbox_block_view($delta = '') {
  * Form for tweeting.
  */
 function birdbox_tweet_form($form_state) {
-  
+
   // If we don't have a configured Twitter consumer key and secret, we won't show the form.
   $key = variable_get('birdbox_consumer_key', '');
   $secret = variable_get('birdbox_consumer_secret', '');
   if ($key == '' || $secret == '') {
     drupal_set_message(
-      t('Please <a href="@configure-url">configure</a> your Twitter consumer key and secret.', 
+      t('Please <a href="@configure-url">configure</a> your Twitter consumer key and secret.',
         array(
           '@configure-url' => url('admin/config/services/birdbox'),
         )
-      ), 
+      ),
       'error');
     return NULL;
   }
-  
+
   // Consumer key and secret are okay, let's see that form!
   $form = array();
 
@@ -94,7 +99,7 @@ function birdbox_tweet_form($form_state) {
     $form['success_message'] = array(
       '#type' => 'markup',
       '#prefix' => '<div id="birdbox-success-message">',
-      '#markup' => check_markup($message, $format), 
+      '#markup' => check_markup($message, $format),
       '#suffix' => '</div>',
     );
     // If we don't have to show the tweet form after a successful tweeting, return now.
@@ -103,12 +108,6 @@ function birdbox_tweet_form($form_state) {
     }
   }
 
-  $form['tweet_description'] = array(
-    '#type' => 'markup',
-    '#prefix' => '<div id="birdbox-description">',
-    '#markup' => check_plain(variable_get('birdbox_tweet_description')),
-    '#suffix' => '</div>',
-  );
   $form['tweet_text'] = array(
     '#type' => 'textarea',
     '#default_value' => variable_get('birdbox_default_text_to_tweet', ''),
@@ -135,7 +134,7 @@ function birdbox_tweet_form_submit($form, &$form_state) {
     module_load_include('lib.php', 'oauth_common');
     module_load_include('lib.php', 'birdbox', 'lib/twitter');
     birdbox_post_tweet($form_state['values']['tweet_text']);
-    $form_state['redirect'] = array(variable_get('birdbox_redirect_path', 'node'), 
+    $form_state['redirect'] = array(variable_get('birdbox_redirect_path', 'node'),
       array('query' => array('birdbox_status' => 'success'), 'fragment' => 'block-birdbox-tweet'));
   }
   else {
@@ -163,9 +162,9 @@ function birdbox_tweet_authorize() {
  * Handle the OAuth callback from Twitter.
  */
 function birdbox_oauth_page() {
-  
+
   if (!birdbox_oauth_validate()) {
-    drupal_goto(variable_get('birdbox_redirect_path', 'node'), 
+    drupal_goto(variable_get('birdbox_redirect_path', 'node'),
       array('query' => array('birdbox_status' => 'fail'), 'fragment' => 'block-birdbox-tweet'));
   }
 
@@ -176,10 +175,10 @@ function birdbox_oauth_page() {
   $twitter = new TwitterOAuth(
     variable_get('birdbox_consumer_key'),
     variable_get('birdbox_consumer_secret'),
-    $token['oauth_token'], 
+    $token['oauth_token'],
     $token['oauth_token_secret']
   );
-  
+
   if ($twitter) {
     $response = $twitter->get_access_token();
     if (is_array($response) && isset($response['oauth_token']) && isset($response['oauth_token_secret'])) {
@@ -188,18 +187,18 @@ function birdbox_oauth_page() {
       $_SESSION['birdbox_oauth']['access_tokens']['oauth_token'] = $response['oauth_token'];
       $_SESSION['birdbox_oauth']['access_tokens']['oauth_token_secret'] = $response['oauth_token_secret'];
 
-      drupal_goto(variable_get('birdbox_redirect_path', 'node'), 
+      drupal_goto(variable_get('birdbox_redirect_path', 'node'),
         array('query' => array('birdbox_status' => 'success'), 'fragment' => 'block-birdbox-tweet'));
     }
     else {
       watchdog('birdbox', 'Invalid Twitter OAuth request.', 'WATCHDOG_ERROR');
-      drupal_goto(variable_get('birdbox_redirect_path', 'node'), 
+      drupal_goto(variable_get('birdbox_redirect_path', 'node'),
         array('query' => array('birdbox_status' => 'fail'), 'fragment' => 'block-birdbox-tweet'));
     }
   }
   else {
     watchdog('birdbox', 'Invalid Twitter OAuth request.', 'WATCHDOG_ERROR');
-    drupal_goto(variable_get('birdbox_redirect_path', 'node'), 
+    drupal_goto(variable_get('birdbox_redirect_path', 'node'),
       array('query' => array('birdbox_status' => 'fail'), 'fragment' => 'block-birdbox-tweet'));
   }
 }
@@ -207,11 +206,11 @@ function birdbox_oauth_page() {
 /**
  * Validate the OAuth request on the OAuth callback page.
  */
-function birdbox_oauth_validate() {  
-  if (!isset($_SESSION['birdbox_oauth']) || !is_array($_SESSION['birdbox_oauth']['token']) 
+function birdbox_oauth_validate() {
+  if (!isset($_SESSION['birdbox_oauth']) || !is_array($_SESSION['birdbox_oauth']['token'])
       || !isset($_GET['oauth_token'])) {
     watchdog('birdbox', 'Invalid Twitter OAuth request.', 'WATCHDOG_ERROR');
-    return FALSE; 
+    return FALSE;
   }
   if ($_SESSION['birdbox_oauth']['token']['oauth_token'] != $_GET['oauth_token']) {
     watchdog('birdbox', 'Invalid Twitter OAuth token.', 'WATCHDOG_ERROR');
@@ -229,7 +228,7 @@ function birdbox_post_tweet($tweet_text, $oauth_token = NULL, $oauth_token_secre
     $oauth_token = $_SESSION['birdbox_oauth']['access_tokens']['oauth_token'];
     $oauth_token_secret = $_SESSION['birdbox_oauth']['access_tokens']['oauth_token_secret'];
   }
-  
+
   $twitter_auth = new TwitterOAuth(
     variable_get('birdbox_consumer_key'),
     variable_get('birdbox_consumer_secret'),
