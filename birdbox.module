@@ -44,13 +44,21 @@ function birdbox_block_info() {
  */
 function birdbox_block_view($delta = '') {
   $block = array();
+  $description = array(
+    '#prefix' => '<div id="birdbox-description">',
+    '#markup' => check_plain(variable_get('birdbox_tweet_description')),
+    '#suffix' => '</div>',
+  );
   if ($delta == 'tweet') {
     $block['subject'] = t('Birdbox');
-    $block['content']['tweet_description'] = array(
-      '#prefix' => '<div id="birdbox-description">',
-      '#markup' => check_plain(variable_get('birdbox_tweet_description')),
-      '#suffix' => '</div>',
-    );
+    if (isset($_GET['birdbox_status'])) {
+      if ($_GET['birdbox_status'] == 'success' && variable_get('birdbox_show_tweet_form_after_success', TRUE)) {
+        $block['content']['tweet_description'] = $description;
+      }
+    }
+    else {
+      $block['content']['tweet_description'] = $description;
+    }
     $block['content']['tweer_form'] = drupal_get_form('birdbox_tweet_form');
   }
   return $block;
