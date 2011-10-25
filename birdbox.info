@@ -3,6 +3,6 @@ description = "Allows Twitter users to tweet directly from within your Drupal we
 core = 7.x
 version = 7.x-1.0-dev
 dependencies[] = oauth_common
-dependencies[] = maxlength_js
+dependencies[] = maxlength
 configure = admin/config/services/birdbox
 
