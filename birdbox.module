@@ -59,7 +59,7 @@ function birdbox_block_view($delta = '') {
     else {
       $block['content']['tweet_description'] = $description;
     }
-    $block['content']['tweer_form'] = drupal_get_form('birdbox_tweet_form');
+    $block['content']['tweet_form'] = drupal_get_form('birdbox_tweet_form');
   }
   return $block;
 }
